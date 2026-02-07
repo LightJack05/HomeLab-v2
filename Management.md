@@ -59,3 +59,6 @@ When I run `make go`, the following happens:
 ### Configuration and Setup
 Any setup on the VM is done via Ansible, at least as far as possible.
 For the most part, if a VM dies, I can simply throw it away and deploy a new one.
+
+### Example
+To see a complete example of a depoyment done via my flow, see [this repo](https://github.com/LightJack05/INF-OS-Task/)
