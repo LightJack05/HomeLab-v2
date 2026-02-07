@@ -49,7 +49,7 @@ When I run `make go`, the following happens:
     - Here, every file represents an ansible group, and every VM is added to the group with it's ansible host set to the VM's IP.
 4. Now, the deployment starts, and we execute `tofu apply` to deploy the VM.
     - The CloudInit in PVE is configured so it matches the values from the YAML file.
-    - A password is generated for the VM's root account and stored in tofu sate.
+    - A password is generated for the VM's root account and stored in tofu state.
     - The CloudInit template in Proxmox is cloned and started once configured.
     - The VM boots up, updates itself and applies any configuration from CloudInit.
 5. Finally, ansible is run with the `ansible/apply_state.sh` script.
