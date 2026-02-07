@@ -1,8 +1,9 @@
 # Documentation for my HomeLab setup v2
-This is a writeup of my current homelab setup.
+Welcome to a writeup of my current homelab setup.
 This repository will also link to any related Repos, like templates, scripts, ansible roles, etc. That is, if I have chosen to make them public.
 
-Why Version 2? Because this setup has evolved multiple times and has been rebuilt from the ground up at least once, so I'm not comfortable calling it V1... 😉
+> [!TIP]
+> I am currently in the process of building a new version of my homelab on top of Talos and Kubernetes. I'll create a HomeLab-v3 repo once that process is done, though it might still take a bit of time.
 
 ## Hardware setup
 
@@ -54,10 +55,12 @@ The backupserver is hosting an SMB share for backups. It is also snapshotting my
 > [!NOTE]
 > This is a very basic overview. For details, see [Management.md](Management.md)
 
-The management plane is accessed via a specific VPN server.
-It is one of the VXLANs and has access to most SSH ports in the network, as well as management dashboards etc.
+My infrastructure is cattle, not a pet.
 
 Management of VMs is done via OpenTofu, CloudInit and Ansible. For a VM deployment, I need about 10 lines of YAML, which generates the Tofu HCL, CloudInit Config and Ansible inventory, including the base setup role which handles firewalling, auto-updates, etc.
+
+The management plane is accessed via a specific VPN server.
+It is one of the VXLANs and has access to most SSH ports in the network, as well as management dashboards etc.
 
 ## Backups
 A snapshot of each VM is taken once a day, and pushed to the Backupserver. The NAS is snapshotted hourly.
