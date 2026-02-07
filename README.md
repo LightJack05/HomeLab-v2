@@ -5,7 +5,55 @@ This repository will also link to any related Repos, like templates, scripts, an
 Why Version 2? Because this setup has evolved multiple times and has been rebuilt from the ground up at least once, so I'm not comfortable calling it V1... 😉
 
 ## Hardware setup
+
+| Node | CPU | Memory | Storage Drives |
+| --------------- | --------------- | --------------- | --------------- |
+| 1 | Ryzen 7 2700X | 64GB DDR4 | 1x 120G SSD <br> 1x 1TB NVMe <br> 2x 2TB SATA WD RED SSD |
+| 2 | Ryzen 7 5700U | 64GB DDR4 SODIMM | 1x 120G SSD <br> 1x 1TB NVMe |
+| 3 | Ryzen 9 6900HX | 64GB DDR4 SODIMM | 1x 120G SSD <br> 1x 1TB NVMe |
+| 4 | Ryzen 9 6900HX | 64GB DDR4 SODIMM | 1x 120G SSD <br> 1x 1TB NVMe |
+| Backupserver | Intel N100 | 16GB DDR4 SODIMM | 1x 256G SSD <br> 18TB Exos Enterprise HDD |
+
+This is a very basic table of the hardware I have in my homelab. The first node is a desktop form factor machine, the other ones are mini PCs.
+
+## Hypervisor
+All nodes in the cluster run Proxmox VE 9. The nodes are joined into a cluster, which allows for live migration and high availability.
+The entire infrastructure is a hyperconverged setup, all nodes have the same storage available and all VMs are distributed across the cluster.
+
 ## Networking
+### Physical Links
+Nodes are interconnected using consumer grade 2.5Gbps switches. I have a total of 3 links for each node, one is a cluster link, one upstream WAN and one is a client network downlink. The nodes only have an IP address on the cluster link. The rest is only used for Layer-2 Communication for VMs in the cluster. 
+
+The cluster link manages PVE quorum/cluster communication. It also manages Ceph traffic and SDN traffic.
+The WAN link is used by the OPNSense firewall VM for upstream traffic.
+The client link is used for routing client traffic through the OPNSense to upstream WAN.
+
+### SDN setup
+The SDN is managed via Proxmox VE's built in SDN capabilities.
+I am using VXLANs for VM networks. Each one acts as a virtual Layer-2 network.
+All VXLANs are attached to an OPNSense firewall. This VM routes all traffic between VXLANs, as well as the WAN and client links.
+
+Since VXLANs use encapsulation and therefore have an MTU limit of 50 below the physical MTU, all nodes have an MTU of 1550 on the cluster link, which gets limited to 1500 via iptables when communicating with targets outside the cluster.
+
+External Router is an TPLink Omada AX3000 DSL, attached to the WAN link. 
+
+<!-- TODO: add a graphic -->
+
 ## Storage
+### PVE Nodes
+Each node boots from the 120GB SSD. It is used by Proxmox VE.
+The 1TB NVMe drive is used for Ceph OSDs. Each node has one OSD, which gives us a total of 4 OSDs in the cluster. The CRUSH map is configured for a size of 3 and a minimum size of 2.
+
+All VMs are located on the Ceph Cluster.
+Additionally, Ceph is also hosting a CephFS filesystem for ISO files and other snippets.
+
+I also have a 2 SATA SSD ZFS stripe for my NAS on Node 1.
+
+### Backupserver
+The backupserver is hosting an SMB share for backups. It is also snapshotting my NAS every hour.
+Once a month an encrypted snapshot is pushed to a remote server at Hetzner (love you guys <3) for offsite backup.
+
 ## Management Plane
+### Access
+The management plane is accessed via a specific VPN server.
 ## Backups
