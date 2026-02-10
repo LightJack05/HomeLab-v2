@@ -11,7 +11,9 @@ The process is as follows:
 
 ### Create the Repository
 I create a new git repository based off this template: [https://github.com/LightJack05/Infrastructure-VM-Deployment-Template](https://github.com/LightJack05/Infrastructure-VM-Deployment-Template)
+
 This template (on purpose) references files that are placed in a different repository: [https://github.com/LightJack05/Infrastructure-VM-Deployment-Template-Files](https://github.com/LightJack05/Infrastructure-VM-Deployment-Template-Files)
+
 This repository contains the scripts and templates used to generate all other files. These files are kept separate to allow for easy updating of scripts globally, without having to update every single Repository.
 If I do have to make a specific change to any one of the files, I can simply run a little `sed -i '' file.sh` to create an actual copy of the script, which I can then modify.
 
