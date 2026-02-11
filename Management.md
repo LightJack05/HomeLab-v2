@@ -7,7 +7,87 @@ This template will get modified by the Tofu provider later on. It already includ
 
 ## Creating a VM
 To create a VM, I simply create a new Git Repo from a a template. I then add a YAML file declaring the VM, and execute a script that will generate any required files based off the YAML file.
-The process is as follows:
+
+The mermaid diagram below outlines the process. For details, scroll further down.
+
+```mermaid
+flowchart TD
+    subgraph CreateRepo [Create infra repository]
+    direction TB
+        CRA[Create repository from template] --> CRB[Clone repository locally]
+    end
+    subgraph DeclareInfra [Initialize Template]
+    direction TB
+        DIA[Write YAML Manifest for VM]
+        DIB[Select ansible roles for deployment]
+        DIC[Create Playbooks for role application]
+        DIA --> DIB
+        DIB --> DIC
+    end
+    CreateRepo --> DeclareInfra
+    subgraph Deploy [Deploy Infrastructure]
+    direction TB
+        DA[Run make go]
+        subgraph InitializeTemplates [Initialize Templates]
+        direction BT
+            ITA[List all .yaml files in terraform/]
+            subgraph RenderTemplates [Render Templates]
+            direction TB
+                RTA[Render both templates]
+                RTB[Render the template.tf.j2 template with values]
+                RTC[Render the template.sh.j2 template with values]
+                RTA --> RTB
+                RTA --> RTC
+            end
+            ITA --> RenderTemplates
+            RenderTemplates --> ITA
+            
+        end
+        DA --> InitializeTemplates
+        subgraph AnsibleInventory[Create Ansible Inventory: ansible/make_inventory.py]
+        direction TB
+            AIA[List all .yaml files in terraform/]
+            AIB[Read all files from terraform/]
+            AIC[Create an ansible inventory group per file]
+            AIA --> AIB --> AIC
+        end
+        InitializeTemplates --> AnsibleInventory
+        subgraph TofuDeployment [Open Tofu Deployment]
+        direction TB
+            TA[Run tofu apply]
+            TB[Confirm changes and continue execution]
+            TA --> TB
+        end
+        AnsibleInventory --> TofuDeployment
+        subgraph CloudInitBootstrap [Cloud Init Bootstrap]
+        direction TB
+            CIA[Read configuration from CloudInit defaults in template]
+            CIB[Add SSH Key]
+            CIC[Configure password]
+            CID[Configure Network]
+            CIE[Update Packages]
+            CIA --> CIB --> CIC --> CID --> CIE
+        end
+        TofuDeployment --> CloudInitBootstrap
+        subgraph AnsibleDeployment [Ansible Deployment]
+        direction TB
+            ADA[Read all .yml files in ansible/state-playbooks/]
+
+            subgraph ApplyPlaybook [Apply Playbook]
+            direction TB
+                APA[Run ansible-playbook on file]
+                APB[Ansible reconciles VM state]
+                APA --> APB
+            end
+
+            ADA --> ApplyPlaybook
+        end
+        CloudInitBootstrap --> AnsibleDeployment
+    end
+    SetupComplete[VM Setup complete]
+    DeclareInfra --> Deploy
+    Deploy --> SetupComplete
+```
 
 ### Create the Repository
 I create a new git repository based off this template: [https://github.com/LightJack05/Infrastructure-VM-Deployment-Template](https://github.com/LightJack05/Infrastructure-VM-Deployment-Template)
