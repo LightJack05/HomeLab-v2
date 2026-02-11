@@ -1,11 +1,12 @@
 # Networking setup
 My networking consists of Proxmox VE's bultin SDN capabilities.
 
-The graphic below shows the logical and physical network setup.
-
-<!-- TODO: Add graphic -->
 
 ## Physical Links
+The graphic below shows the physical network setup.
+
+<img width="600" alt="Physical Cluster Layout" src="https://github.com/user-attachments/assets/3ad3eeae-b770-4ec5-b635-00e2cbc492f3" />
+
 As you can see, there are 3 physical links leaving each server.
 ### Cluster Link
 
@@ -28,10 +29,19 @@ This is a downstream link for client traffic. It is a mixed 10Gbps/2.5Gbps link,
 There is also an access point in this network for WiFi clients.
 The gateway of this network is, as with any other VXLAN, the OPNSense firewall VM.
 
+## Logical Network setup
+On the logical side, all networks are as similar as possible. The graphic below shows the logical network setup.
+
+<img width="600" alt="Logical Network Setup" src="https://github.com/user-attachments/assets/4f6c7ce5-86d5-44cf-ad9c-47578d513485" />
+
+All Networks are connected to the OPNSense as Gateway, including the cluster link and client network.
+The type of network, be that physical or VXLAN, gets abstracted away.
+
 ## Firewall and Routing
 ### Routing
 Since all networks are attached directly to the OPNSense firewall, the routing setup is quite simple. It only needs an upstream gateway to the WAN.
-In the WAN gateway, the networks attached to the OPNSense are defined as static routes via OPNSense.
+In the WAN gateway, the networks are defined as static routes via the OPNSense.
+NAT is handled entirely on the WAN gateway.
 
 ### Firewall
 Firewall policies are set up in a way that allows me to quickly add common rules for VMs.
